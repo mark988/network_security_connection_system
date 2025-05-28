@@ -63,6 +63,8 @@ export default function Identity() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processProgress, setProcessProgress] = useState(0);
   const [processStatus, setProcessStatus] = useState("");
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   // 高级过滤状态
   const [filterName, setFilterName] = useState("");
@@ -171,9 +173,9 @@ export default function Identity() {
 
       // 高级过滤
       const matchesAdvancedName = !filterName || identity.name.toLowerCase().includes(filterName.toLowerCase());
-      const matchesAdvancedDepartment = !filterDepartment || 
+      const matchesAdvancedDepartment = !filterDepartment || filterDepartment === "all" ||
         (identity.department && identity.department.includes(filterDepartment));
-      const matchesAdvancedRisk = !filterRiskScore || 
+      const matchesAdvancedRisk = !filterRiskScore || filterRiskScore === "all" ||
         (filterRiskScore === "high" && identity.riskScore >= 90) ||
         (filterRiskScore === "medium" && identity.riskScore >= 70 && identity.riskScore < 90) ||
         (filterRiskScore === "low" && identity.riskScore < 70);
@@ -255,7 +257,31 @@ export default function Identity() {
     }, 1000);
   };
 
-  const handleBatchImport = () => simulateBatchOperation("导入");
+  const handleBatchImport = () => {
+    setShowImportDialog(true);
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const confirmImport = async () => {
+    if (!selectedFile) {
+      toast({
+        title: "请选择文件",
+        description: "请先选择要导入的文件",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setShowImportDialog(false);
+    await simulateBatchOperation(`导入文件: ${selectedFile.name}`);
+    setSelectedFile(null);
+  };
   const handleBatchExport = () => simulateBatchOperation("导出");
   const handleBatchEnable = () => simulateBatchOperation("启用");
   const handleBatchDisable = () => simulateBatchOperation("禁用");
@@ -417,7 +443,7 @@ export default function Identity() {
                       <SelectValue placeholder="选择部门" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">全部部门</SelectItem>
+                      <SelectItem value="all">全部部门</SelectItem>
                       <SelectItem value="技术部">技术部</SelectItem>
                       <SelectItem value="财务部">财务部</SelectItem>
                       <SelectItem value="人事部">人事部</SelectItem>
@@ -432,10 +458,10 @@ export default function Identity() {
                       <SelectValue placeholder="选择风险等级" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">全部</SelectItem>
+                      <SelectItem value="all">全部</SelectItem>
                       <SelectItem value="high">高风险 (≥90)</SelectItem>
                       <SelectItem value="medium">中风险 (70-89)</SelectItem>
-                      <SelectItem value="low">低风险 (<70)</SelectItem>
+                      <SelectItem value="low">低风险 (小于70)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -446,7 +472,7 @@ export default function Identity() {
                       <SelectValue placeholder="选择时间" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">全部时间</SelectItem>
+                      <SelectItem value="all">全部时间</SelectItem>
                       <SelectItem value="today">今天</SelectItem>
                       <SelectItem value="week">最近一周</SelectItem>
                       <SelectItem value="month">最近一月</SelectItem>
