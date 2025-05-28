@@ -3,24 +3,28 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
-// Simplified authentication middleware that checks both session types
+// Direct authentication middleware
 const customAuth = async (req: any, res: any, next: any) => {
-  try {
-    // Check custom session first
-    if (req.session?.user) {
-      return next();
-    }
-    
-    // Check Replit auth session
-    if (req.isAuthenticated?.() && req.user?.claims?.sub) {
-      return next();
-    }
-    
-    res.status(401).json({ message: "Unauthorized" });
-  } catch (error) {
-    console.error("Custom auth error:", error);
-    res.status(401).json({ message: "Unauthorized" });
+  // Debug session info
+  console.log("Session check:", {
+    hasSession: !!req.session,
+    hasUser: !!req.session?.user,
+    userId: req.session?.user?.id,
+    isAuthenticated: req.isAuthenticated?.(),
+    hasReplit: !!req.user?.claims?.sub
+  });
+  
+  // Check custom session first
+  if (req.session?.user?.id) {
+    return next();
   }
+  
+  // Check Replit auth session
+  if (req.isAuthenticated?.() && req.user?.claims?.sub) {
+    return next();
+  }
+  
+  res.status(401).json({ message: "Unauthorized" });
 };
 import { insertUserSchema, insertPolicySchema, insertAlertSchema } from "@shared/schema";
 import { z } from "zod";
