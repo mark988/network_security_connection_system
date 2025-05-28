@@ -1,18 +1,50 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, Trash2, Edit, Play } from "lucide-react";
 import PolicyEditor from "@/components/policies/policy-editor";
+import PolicyTestModal from "@/components/policies/policy-test-modal";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { Policy } from "@shared/schema";
 
 export default function Policies() {
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [testModalOpen, setTestModalOpen] = useState(false);
+  const [testingPolicy, setTestingPolicy] = useState<Policy | null>(null);
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: policies = [], isLoading } = useQuery({
     queryKey: ["/api/policies"],
+  });
+
+  // 删除策略功能
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest(`/api/policies/${id}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/policies"] });
+      toast({
+        title: "删除成功",
+        description: "策略已成功删除",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "删除失败",
+        description: "删除策略时发生错误，请重试",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleCreateNew = () => {
@@ -23,6 +55,15 @@ export default function Policies() {
   const handleSelectPolicy = (policy: Policy) => {
     setSelectedPolicy(policy);
     setIsCreating(false);
+  };
+
+  const handleTestPolicy = (policy: Policy) => {
+    setTestingPolicy(policy);
+    setTestModalOpen(true);
+  };
+
+  const handleDeletePolicy = (id: number) => {
+    deleteMutation.mutate(id);
   };
 
   return (

@@ -42,8 +42,7 @@ export default function PolicyEditor({ policy, isCreating, onSave }: PolicyEdito
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
   const [isTestingPolicy, setIsTestingPolicy] = useState(false);
-  const [testProgress, setTestProgress] = useState(0);
-  const [testStatus, setTestStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
+
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -169,7 +168,6 @@ export default function PolicyEditor({ policy, isCreating, onSave }: PolicyEdito
   };
 
   const [isTesting, setIsTesting] = useState(false);
-  const [testProgress, setTestProgress] = useState(0);
 
   const testPolicy = async () => {
     setIsTesting(true);
