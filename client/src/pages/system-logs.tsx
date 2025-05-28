@@ -151,8 +151,43 @@ export default function SystemLogs() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedLogs = filteredLogs.slice(startIndex, startIndex + itemsPerPage);
 
-  const exportLogs = () => {
-    console.log("导出系统日志", filteredLogs);
+  const exportLogs = async () => {
+    setIsExporting(true);
+    
+    // 模拟导出过程
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // 创建并下载CSV文件
+    const csvContent = [
+      ["时间", "级别", "服务", "消息", "详细信息", "线程", "源文件"].join(","),
+      ...filteredLogs.map(log => [
+        log.timestamp,
+        log.level,
+        log.service,
+        log.message,
+        log.details,
+        log.thread,
+        log.source
+      ].join(","))
+    ].join("\n");
+    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `系统日志_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    setIsExporting(false);
+    
+    toast({
+      title: "导出成功",
+      description: `已成功导出 ${filteredLogs.length} 条系统日志记录`,
+      duration: 3000,
+    });
   };
 
   const levelCounts = {
@@ -172,9 +207,25 @@ export default function SystemLogs() {
           </h1>
           <p className="text-gray-600 mt-1">监控系统运行状态和异常情况</p>
         </div>
-        <Button onClick={exportLogs} className="flex items-center">
-          <Download className="h-4 w-4 mr-2" />
-          导出日志
+        <Button 
+          onClick={exportLogs} 
+          disabled={isExporting}
+          className="flex items-center relative overflow-hidden transition-all duration-300 transform hover:scale-105"
+        >
+          {isExporting ? (
+            <>
+              <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
+              导出中...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:translate-y-1" />
+              导出日志
+            </>
+          )}
+          {isExporting && (
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-20 animate-pulse"></div>
+          )}
         </Button>
       </div>
 
