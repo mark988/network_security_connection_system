@@ -15,8 +15,8 @@ const customAuth = async (req: any, res: any, next: any) => {
       }
     }
     
-    // Fallback to original customAuth middleware
-    return customAuth(req, res, next);
+    // Fallback to original isAuthenticated middleware
+    return isAuthenticated(req, res, next);
   } catch (error) {
     console.error("Custom auth error:", error);
     res.status(401).json({ message: "Unauthorized" });
