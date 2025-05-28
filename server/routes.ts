@@ -47,14 +47,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for custom session first
       if (req.session?.user) {
         const user = await storage.getUser(req.session.user.id);
-        return res.json(user);
+        if (user) {
+          return res.json(user);
+        }
       }
       
-      // Fallback to Replit auth
-      if (req.isAuthenticated?.() && req.user?.claims?.sub) {
+      // Fallback to Replit auth only if no custom session exists
+      if (!req.session?.user && req.isAuthenticated?.() && req.user?.claims?.sub) {
         const userId = req.user.claims.sub;
         const user = await storage.getUser(userId);
-        return res.json(user);
+        if (user) {
+          return res.json(user);
+        }
       }
       
       res.status(401).json({ message: "Unauthorized" });
@@ -66,8 +70,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Custom logout route
   app.post('/api/auth/logout', (req: any, res) => {
-    // Clear both custom session and passport session
+    // Clear custom session data
     if (req.session) {
+      req.session.user = null;
       req.session.destroy((err: any) => {
         if (err) {
           console.error("Session destroy error:", err);
@@ -80,8 +85,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.logout(() => {});
     }
     
-    // Clear the session cookie
+    // Clear all cookies
     res.clearCookie('connect.sid');
+    res.clearCookie('session');
+    
     res.json({ success: true });
   });
 

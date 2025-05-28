@@ -11,18 +11,25 @@ export function useAuth() {
 
   const logout = async () => {
     try {
+      // Call both logout endpoints to ensure complete logout
       await fetch('/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
       });
+      
+      // Also call the original Replit logout endpoint
+      await fetch('/api/logout', {
+        method: 'GET',
+      });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Clear all queries and reload
+      // Clear all queries and force navigation to home
       queryClient.clear();
-      window.location.reload();
+      // Use replace to prevent back button issues
+      window.location.replace('/');
     }
   };
 
