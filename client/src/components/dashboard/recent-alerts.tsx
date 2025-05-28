@@ -57,7 +57,7 @@ export default function RecentAlerts({ alerts }: RecentAlertsProps) {
     },
   ];
 
-  const recentAlerts = alerts?.slice(0, 5) || mockAlerts.slice(0, 3);
+  const recentAlerts = (alerts && alerts.length > 0) ? alerts.slice(0, 5) : mockAlerts.slice(0, 3);
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
@@ -121,7 +121,7 @@ export default function RecentAlerts({ alerts }: RecentAlertsProps) {
                     {alert.title}
                   </p>
                   <p className="text-xs text-carbon-gray-70">
-                    来源: {alert.sourceIp || alert.sourceUser} | {getTimeAgo(new Date(alert.createdAt!))}
+                    来源: {(alert as any).sourceIp || (alert as any).sourceUser || alert.sourceIp} | {getTimeAgo(new Date(alert.createdAt!))}
                   </p>
                 </div>
               </div>

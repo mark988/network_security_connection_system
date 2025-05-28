@@ -24,7 +24,7 @@ export default function TrafficChart({ data }: TrafficChartProps) {
     { time: "22:00", inbound: 55, outbound: 45, packets: 1980, connections: 88 },
   ];
 
-  const chartData = data ? data.map((item, index) => ({
+  const chartData = data && data.length > 0 ? data.map((item, index) => ({
     time: new Date(item.timestamp!).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
     inbound: item.inboundTraffic,
     outbound: item.outboundTraffic,
