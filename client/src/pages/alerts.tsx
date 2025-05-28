@@ -5,7 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ExclamationTriangleIcon, CheckCircleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
+import { Eye, Clock, MapPin, Shield, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Alert } from "@shared/schema";
@@ -13,6 +15,7 @@ import type { Alert } from "@shared/schema";
 export default function Alerts() {
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -252,13 +255,141 @@ export default function Alerts() {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-carbon-blue hover:text-blue-700"
-                          >
-                            查看详情
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-carbon-blue hover:text-blue-700"
+                                onClick={() => setSelectedAlert(alert)}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                查看详情
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                  {getSeverityIcon(alert.severity)}
+                                  {alert.title}
+                                </DialogTitle>
+                                <DialogDescription>
+                                  告警详细信息和处理记录
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="space-y-6">
+                                {/* 基本信息 */}
+                                <div>
+                                  <h4 className="font-medium text-gray-900 mb-3">基本信息</h4>
+                                  <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div className="space-y-2">
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">告警ID:</span>
+                                        <span className="font-mono">{alert.id}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">严重级别:</span>
+                                        {getSeverityBadge(alert.severity)}
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">告警类型:</span>
+                                        <span>{alert.type}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">当前状态:</span>
+                                        <span className={
+                                          alert.status === "active" ? "bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded-full text-xs" :
+                                          alert.status === "investigating" ? "bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded-full text-xs" :
+                                          alert.status === "resolved" ? "bg-gray-50 text-gray-700 border border-gray-200 px-2 py-1 rounded-full text-xs" :
+                                          "bg-yellow-50 text-yellow-700 border border-yellow-200 px-2 py-1 rounded-full text-xs"
+                                        }>
+                                          {alert.status === "active" ? "进行中" : 
+                                           alert.status === "investigating" ? "调查中" : 
+                                           alert.status === "resolved" ? "已解决" : 
+                                           alert.status === "new" ? "新告警" :
+                                           alert.status === "in-progress" ? "处理中" :
+                                           alert.status}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">源地址:</span>
+                                        <span className="font-mono">{alert.sourceIp || alert.sourceUser || "-"}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">目标:</span>
+                                        <span>{alert.targetIp || alert.targetService || "-"}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">发生时间:</span>
+                                        <span>{new Date(alert.createdAt!).toLocaleString('zh-CN')}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-gray-600">负责人:</span>
+                                        <span>{alert.assignee || "未分配"}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* 详细描述 */}
+                                <div>
+                                  <h4 className="font-medium text-gray-900 mb-3">详细描述</h4>
+                                  <div className="bg-gray-50 rounded-lg p-4">
+                                    <p className="text-sm text-gray-700">{alert.description}</p>
+                                  </div>
+                                </div>
+
+                                {/* 影响评估 */}
+                                <div>
+                                  <h4 className="font-medium text-gray-900 mb-3">影响评估</h4>
+                                  <div className="grid grid-cols-3 gap-4">
+                                    <div className="text-center p-3 bg-red-50 rounded-lg">
+                                      <Shield className="h-6 w-6 text-red-600 mx-auto mb-1" />
+                                      <div className="text-xs text-gray-600">威胁等级</div>
+                                      <div className="font-semibold text-red-600">
+                                        {alert.severity === "critical" ? "严重" : 
+                                         alert.severity === "high" ? "高" : 
+                                         alert.severity === "medium" ? "中等" : "低"}
+                                      </div>
+                                    </div>
+                                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                                      <Activity className="h-6 w-6 text-blue-600 mx-auto mb-1" />
+                                      <div className="text-xs text-gray-600">影响范围</div>
+                                      <div className="font-semibold text-blue-600">局部系统</div>
+                                    </div>
+                                    <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                                      <Clock className="h-6 w-6 text-yellow-600 mx-auto mb-1" />
+                                      <div className="text-xs text-gray-600">处理时长</div>
+                                      <div className="font-semibold text-yellow-600">
+                                        {Math.floor((Date.now() - new Date(alert.createdAt!).getTime()) / (1000 * 60))} 分钟
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* 处理建议 */}
+                                <div>
+                                  <h4 className="font-medium text-gray-900 mb-3">处理建议</h4>
+                                  <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
+                                    <div className="text-sm text-blue-700">
+                                      <p className="font-medium mb-1">建议处理步骤：</p>
+                                      <ul className="list-disc list-inside space-y-1">
+                                        <li>立即隔离受影响的系统或用户账户</li>
+                                        <li>收集相关日志和证据信息</li>
+                                        <li>分析攻击向量和影响范围</li>
+                                        <li>实施相应的安全防护措施</li>
+                                        <li>更新安全策略和监控规则</li>
+                                      </ul>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           {alert.status === "new" && (
                             <Button
                               variant="ghost"
