@@ -9,8 +9,26 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState("");
   const { user } = useAuth();
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Reload the page to trigger authentication state change
+        window.location.reload();
+      } else {
+        // Fallback to original logout method
+        window.location.href = "/api/logout";
+      }
+    } catch (error) {
+      // Fallback to original logout method
+      window.location.href = "/api/logout";
+    }
   };
 
   return (

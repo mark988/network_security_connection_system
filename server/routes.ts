@@ -9,16 +9,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Custom login route for direct authentication
+  app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body;
+    
+    // Simple authentication for demo purposes
+    if (username === "admin" && password === "123") {
+      // Create or get admin user
+      let user = await storage.getUser("admin");
+      if (!user) {
+        user = await storage.upsertUser({
+          id: "admin",
+          email: "admin@company.com",
+          firstName: "系统",
+          lastName: "管理员",
+          profileImageUrl: null,
+        });
+      }
+      
+      // Set session
+      (req as any).session.user = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      };
+      
+      res.json({ success: true, user });
+    } else {
+      res.status(401).json({ success: false, message: "账号或密码错误" });
+    }
+  });
+
+  // Modified auth user route to support both session types
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      // Check for custom session first
+      if (req.session?.user) {
+        const user = await storage.getUser(req.session.user.id);
+        return res.json(user);
+      }
+      
+      // Fallback to Replit auth
+      if (req.isAuthenticated?.() && req.user?.claims?.sub) {
+        const userId = req.user.claims.sub;
+        const user = await storage.getUser(userId);
+        return res.json(user);
+      }
+      
+      res.status(401).json({ message: "Unauthorized" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
+  });
+
+  // Custom logout route
+  app.post('/api/auth/logout', (req: any, res) => {
+    req.session.destroy((err: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Could not log out" });
+      }
+      res.json({ success: true });
+    });
   });
 
   // Users routes

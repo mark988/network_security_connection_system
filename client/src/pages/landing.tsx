@@ -16,12 +16,26 @@ export default function Landing() {
     setError("");
     setIsLoading(true);
     
-    // Simulate login validation
-    if (username === "admin" && password === "123") {
-      // Redirect to Replit auth
-      window.location.href = "/api/login";
-    } else {
-      setError("账号或者密码错误");
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Reload the page to trigger authentication state change
+        window.location.reload();
+      } else {
+        setError(data.message || "账号或者密码错误");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setError("登录失败，请稍后重试");
       setIsLoading(false);
     }
   };
