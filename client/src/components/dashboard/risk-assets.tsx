@@ -8,28 +8,47 @@ interface RiskAssetsProps {
 }
 
 export default function RiskAssets({ users }: RiskAssetsProps) {
-  // Mock data for demonstration
+  // Enhanced mock data with realistic system assets
   const mockAssets = [
     {
-      id: "srv-web-01",
-      name: "srv-web-01",
+      id: "srv-db-prod-01",
+      name: "SRV-DB-PROD-01",
       type: "server",
-      identifier: "192.168.1.10",
+      identifier: "192.168.1.15",
       riskLevel: "high",
+      details: "核心数据库服务器 - 检测到异常访问模式",
     },
     {
-      id: "admin",
-      name: "admin",
-      type: "user",
-      identifier: "特权账户",
-      riskLevel: "medium",
-    },
-    {
-      id: "laptop-user123",
-      name: "LAPTOP-USER123",
+      id: "wks-finance-07",
+      name: "WKS-FINANCE-07",
       type: "device",
-      identifier: "192.168.1.45",
+      identifier: "192.168.2.45",
       riskLevel: "high",
+      details: "财务工作站 - 发现可疑文件传输",
+    },
+    {
+      id: "srv-backup-02",
+      name: "SRV-BACKUP-02",
+      type: "server",
+      identifier: "192.168.1.25",
+      riskLevel: "medium",
+      details: "备份服务器 - 权限配置异常",
+    },
+    {
+      id: "iot-sensor-12",
+      name: "IOT-SENSOR-12",
+      type: "device",
+      identifier: "192.168.3.112",
+      riskLevel: "medium",
+      details: "温度传感器 - 固件版本过旧",
+    },
+    {
+      id: "sw-core-01",
+      name: "SW-CORE-01",
+      type: "server",
+      identifier: "192.168.1.1",
+      riskLevel: "high",
+      details: "核心交换机 - 检测到流量异常",
     },
   ];
 

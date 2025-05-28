@@ -8,32 +8,56 @@ interface RecentAlertsProps {
 }
 
 export default function RecentAlerts({ alerts }: RecentAlertsProps) {
-  // Mock data for demonstration
+  // Enhanced mock alert data
   const mockAlerts = [
     {
       id: 1,
       severity: "critical",
-      title: "可疑登录尝试",
-      sourceIp: "192.168.1.100",
-      createdAt: new Date(Date.now() - 2 * 60 * 1000),
+      title: "暴力破解攻击检测",
+      sourceIp: "203.124.45.67",
+      targetService: "SSH服务",
+      createdAt: new Date(Date.now() - 3 * 60 * 1000),
+      type: "brute_force",
     },
     {
       id: 2,
-      severity: "medium",
-      title: "策略违规",
-      sourceUser: "john.doe",
-      createdAt: new Date(Date.now() - 15 * 60 * 1000),
+      severity: "high",
+      title: "异常数据传输",
+      sourceUser: "SRV-WEB-02",
+      targetIp: "外部服务器",
+      createdAt: new Date(Date.now() - 8 * 60 * 1000),
+      type: "data_exfiltration",
     },
     {
       id: 3,
       severity: "critical",
-      title: "恶意软件检测",
-      sourceIp: "DESKTOP-ABC123",
-      createdAt: new Date(Date.now() - 32 * 60 * 1000),
+      title: "恶意软件活动",
+      sourceIp: "WKS-DEV-015",
+      targetService: "文件系统",
+      createdAt: new Date(Date.now() - 12 * 60 * 1000),
+      type: "malware",
+    },
+    {
+      id: 4,
+      severity: "medium",
+      title: "访问策略违规",
+      sourceUser: "财务系统用户",
+      targetService: "核心数据库",
+      createdAt: new Date(Date.now() - 25 * 60 * 1000),
+      type: "policy_violation",
+    },
+    {
+      id: 5,
+      severity: "high",
+      title: "DDoS攻击尝试",
+      sourceIp: "多个IP地址",
+      targetService: "Web服务",
+      createdAt: new Date(Date.now() - 35 * 60 * 1000),
+      type: "ddos",
     },
   ];
 
-  const recentAlerts = alerts?.slice(0, 3) || mockAlerts;
+  const recentAlerts = alerts?.slice(0, 5) || mockAlerts.slice(0, 3);
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
