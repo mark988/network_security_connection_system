@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, User, Lock, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Landing() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleLogin = async () => {
     setError("");
@@ -28,8 +30,10 @@ export default function Landing() {
       const data = await response.json();
       
       if (data.success) {
-        // Reload the page to trigger authentication state change
-        window.location.reload();
+        // Pre-populate the query cache with user data to prevent flash
+        queryClient.setQueryData(["/api/auth/user"], data.user);
+        // Then navigate to home page
+        window.location.href = '/';
       } else {
         setError(data.message || "账号或者密码错误");
         setIsLoading(false);
