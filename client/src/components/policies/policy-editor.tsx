@@ -583,10 +583,18 @@ export default function PolicyEditor({ policy, isCreating, onSave }: PolicyEdito
                   type="button"
                   variant="outline"
                   onClick={testPolicy}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isTesting}
+                  className="relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg border-blue-300 hover:border-blue-500 text-blue-600 hover:text-blue-700"
                 >
-                  <Play className="w-4 h-4 mr-2" />
-                  测试策略
+                  {isTesting ? (
+                    <div className="w-4 h-4 mr-2 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Play className="w-4 h-4 mr-2" />
+                  )}
+                  {isTesting ? "测试中..." : "测试策略"}
+                  {isTesting && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 animate-pulse"></div>
+                  )}
                 </Button>
                 
                 <Button
