@@ -165,15 +165,46 @@ export default function Policies() {
                         <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
                         优先级 {policy.priority}
                       </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTestPolicy(policy);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        策略测试
-                      </button>
+                      <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTestPolicy(policy);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          测试
+                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-red-600 hover:text-red-800 font-medium"
+                            >
+                              删除
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>确认删除策略</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                您确定要删除策略 "{policy.name}" 吗？此操作不可撤销，删除后该策略将停止生效。
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>取消</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  deleteMutation.mutate(policy.id);
+                                }}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                确认删除
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </div>
 
