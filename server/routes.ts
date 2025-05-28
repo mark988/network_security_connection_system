@@ -66,12 +66,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Custom logout route
   app.post('/api/auth/logout', (req: any, res) => {
-    req.session.destroy((err: any) => {
-      if (err) {
-        return res.status(500).json({ message: "Could not log out" });
-      }
-      res.json({ success: true });
-    });
+    // Clear both custom session and passport session
+    if (req.session) {
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error("Session destroy error:", err);
+        }
+      });
+    }
+    
+    // Also logout from passport if exists
+    if (req.logout) {
+      req.logout(() => {});
+    }
+    
+    // Clear the session cookie
+    res.clearCookie('connect.sid');
+    res.json({ success: true });
   });
 
   // Users routes

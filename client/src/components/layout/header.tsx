@@ -7,29 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
   const [searchTerm, setSearchTerm] = useState("");
-  const { user } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        // Reload the page to trigger authentication state change
-        window.location.reload();
-      } else {
-        // Fallback to original logout method
-        window.location.href = "/api/logout";
-      }
-    } catch (error) {
-      // Fallback to original logout method
-      window.location.href = "/api/logout";
-    }
-  };
+  const { user, logout } = useAuth();
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -79,7 +57,7 @@ export default function Header() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleLogout}
+            onClick={logout}
             className="text-carbon-gray-70 hover:text-gray-900"
           >
             <LogOut className="h-5 w-5" />
