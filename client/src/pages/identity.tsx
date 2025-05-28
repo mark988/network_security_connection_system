@@ -485,9 +485,9 @@ export default function Identity() {
                   variant="outline" 
                   onClick={() => {
                     setFilterName("");
-                    setFilterDepartment("");
-                    setFilterRiskScore("");
-                    setFilterDateRange("");
+                    setFilterDepartment("all");
+                    setFilterRiskScore("all");
+                    setFilterDateRange("all");
                   }}
                 >
                   清除过滤
@@ -763,6 +763,60 @@ export default function Identity() {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* 批量导入文件对话框 */}
+      <AlertDialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>批量导入身份数据</AlertDialogTitle>
+            <AlertDialogDescription>
+              请选择要导入的CSV或Excel文件，支持的格式：.csv、.xlsx、.xls
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+              <p className="text-sm text-gray-600 mb-4">
+                {selectedFile ? `已选择文件: ${selectedFile.name}` : "拖拽文件到此处，或点击选择文件"}
+              </p>
+              <Input
+                type="file"
+                accept=".csv,.xlsx,.xls"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="file-input"
+              />
+              <Button 
+                variant="outline" 
+                onClick={() => document.getElementById('file-input')?.click()}
+              >
+                选择文件
+              </Button>
+            </div>
+            
+            {selectedFile && (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                  <span className="text-sm text-green-700">
+                    文件已准备就绪：{selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedFile(null)}>
+              取消
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmImport}>
+              开始导入
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
