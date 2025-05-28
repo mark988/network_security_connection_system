@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Users from "@/pages/users";
+import Identity from "@/pages/identity";
 import Policies from "@/pages/policies";
 import Alerts from "@/pages/alerts";
 import Topology from "@/pages/topology";
@@ -35,6 +36,7 @@ function Router() {
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/users" component={Users} />
+            <Route path="/identity" component={Identity} />
             <Route path="/policies" component={Policies} />
             <Route path="/alerts" component={Alerts} />
             <Route path="/topology" component={Topology} />

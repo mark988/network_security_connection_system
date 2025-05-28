@@ -5,12 +5,14 @@ import {
   Settings, 
   AlertTriangle, 
   Network,
-  Shield
+  Shield,
+  UserCog
 } from "lucide-react";
 
 const navigation = [
   { name: "系统概览", href: "/", icon: LayoutDashboard },
   { name: "用户管理", href: "/users", icon: Users },
+  { name: "身份管理", href: "/identity", icon: UserCog },
   { name: "访问策略", href: "/policies", icon: Settings },
   { name: "安全告警", href: "/alerts", icon: AlertTriangle },
   { name: "网络拓扑", href: "/topology", icon: Network },
