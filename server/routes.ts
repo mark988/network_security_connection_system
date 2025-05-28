@@ -116,6 +116,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true });
   });
 
+  // Forgot password route (模拟邮件发送)
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      // 验证邮箱格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "请提供有效的邮箱地址" 
+        });
+      }
+
+      // 模拟检查用户是否存在（这里简化处理，实际项目中需要检查数据库）
+      console.log(`模拟发送密码重置邮件到: ${email}`);
+      
+      // 模拟发送邮件延迟
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // 返回成功响应
+      res.json({ 
+        success: true, 
+        message: "密码重置链接已发送到您的邮箱" 
+      });
+      
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "服务器错误，请稍后重试" 
+      });
+    }
+  });
+
   // Users routes  
   app.get('/api/users', async (req, res) => {
     try {

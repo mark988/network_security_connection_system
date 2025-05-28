@@ -133,29 +133,18 @@ export default function Landing() {
               )}
             </Button>
             
-            <div className="text-sm text-slate-600 space-y-2 mt-6">
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></div>
-                <span>实时安全态势感知</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse delay-100"></div>
-                <span>动态访问策略控制</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse delay-200"></div>
-                <span>智能威胁检测与响应</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse delay-300"></div>
-                <span>全面身份认证管理</span>
-              </div>
+            <div className="text-center mt-4">
+              <button
+                onClick={() => window.location.href = '/forgot-password'}
+                className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              >
+                忘记密码？
+              </button>
             </div>
             
             <div className="text-center text-xs text-slate-500 mt-4">
               <p>安全 • 可靠 • 高效</p>
               <p className="mt-1">支持企业级大规模部署</p>
-              <p className="mt-2 text-blue-600">默认账号: admin / 密码: 123</p>
             </div>
           </div>
         </CardContent>

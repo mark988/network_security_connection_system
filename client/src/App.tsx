@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
+import ForgotPassword from "@/pages/forgot-password";
 import Dashboard from "@/pages/dashboard";
 import Users from "@/pages/users";
 import Identity from "@/pages/identity";
@@ -28,6 +29,7 @@ function Router() {
     return (
       <Switch>
         <Route path="/" component={Landing} />
+        <Route path="/forgot-password" component={ForgotPassword} />
         <Route component={Landing} />
       </Switch>
     );
