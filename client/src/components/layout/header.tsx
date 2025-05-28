@@ -6,10 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export default function Header() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
   
   // 通知相关状态
   const [showNotifications, setShowNotifications] = useState(false);
@@ -28,17 +30,11 @@ export default function Header() {
 
   // 处理菜单点击
   const handleUserInfoClick = () => {
-    toast({
-      title: "用户信息",
-      description: "跳转到用户信息页面",
-    });
+    setLocation("/user-profile");
   };
 
   const handlePasswordChangeClick = () => {
-    toast({
-      title: "修改密码",
-      description: "跳转到密码修改页面",
-    });
+    setLocation("/change-password");
   };
 
   return (
