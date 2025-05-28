@@ -56,6 +56,16 @@ export default function Identity() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [selectedIdentity, setSelectedIdentity] = useState<Identity | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processProgress, setProcessProgress] = useState(0);
+  const [processStatus, setProcessStatus] = useState("");
+  
+  // 高级过滤状态
+  const [filterName, setFilterName] = useState("");
+  const [filterDepartment, setFilterDepartment] = useState("");
+  const [filterDateRange, setFilterDateRange] = useState("");
+  const [filterRiskScore, setFilterRiskScore] = useState("");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -156,9 +166,19 @@ export default function Identity() {
       const matchesStatus = selectedStatus === "all" || identity.status === selectedStatus;
       const matchesType = selectedType === "all" || identity.type === selectedType;
 
-      return matchesTab && matchesSearch && matchesStatus && matchesType;
+      // 高级过滤
+      const matchesAdvancedName = !filterName || identity.name.toLowerCase().includes(filterName.toLowerCase());
+      const matchesAdvancedDepartment = !filterDepartment || 
+        (identity.department && identity.department.includes(filterDepartment));
+      const matchesAdvancedRisk = !filterRiskScore || 
+        (filterRiskScore === "high" && identity.riskScore >= 90) ||
+        (filterRiskScore === "medium" && identity.riskScore >= 70 && identity.riskScore < 90) ||
+        (filterRiskScore === "low" && identity.riskScore < 70);
+
+      return matchesTab && matchesSearch && matchesStatus && matchesType && 
+             matchesAdvancedName && matchesAdvancedDepartment && matchesAdvancedRisk;
     });
-  }, [activeTab, searchTerm, selectedStatus, selectedType]);
+  }, [activeTab, searchTerm, selectedStatus, selectedType, filterName, filterDepartment, filterRiskScore]);
 
   // 获取身份类型图标
   const getTypeIcon = (type: string) => {
@@ -206,6 +226,37 @@ export default function Identity() {
       setSelectedItems(filteredIdentities.map(identity => identity.id));
     }
   };
+
+  // 批量操作函数
+  const simulateBatchOperation = async (operation: string) => {
+    setIsProcessing(true);
+    setProcessProgress(0);
+    setProcessStatus(`正在${operation}${selectedItems.length}个身份...`);
+
+    for (let i = 0; i <= 100; i += 10) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setProcessProgress(i);
+      if (i === 50) {
+        setProcessStatus(`${operation}进度：${selectedItems.length}个身份中的${Math.floor(selectedItems.length / 2)}个已完成`);
+      }
+    }
+
+    setProcessStatus(`${operation}完成！`);
+    setTimeout(() => {
+      setIsProcessing(false);
+      setSelectedItems([]);
+      toast({
+        title: "操作成功",
+        description: `已成功${operation}${selectedItems.length}个身份`,
+      });
+    }, 1000);
+  };
+
+  const handleBatchImport = () => simulateBatchOperation("导入");
+  const handleBatchExport = () => simulateBatchOperation("导出");
+  const handleBatchEnable = () => simulateBatchOperation("启用");
+  const handleBatchDisable = () => simulateBatchOperation("禁用");
+  const handleBatchDelete = () => simulateBatchOperation("删除");
 
   // 打开详情面板
   const openDetails = (identity: Identity) => {
@@ -274,7 +325,10 @@ export default function Identity() {
                   </SelectContent>
                 </Select>
 
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   高级过滤
                 </Button>
@@ -287,11 +341,11 @@ export default function Identity() {
                     <Plus className="h-4 w-4 mr-2" />
                     新增身份
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={handleBatchImport} disabled={isProcessing}>
                     <Upload className="h-4 w-4 mr-2" />
                     批量导入
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={handleBatchExport} disabled={isProcessing}>
                     <Download className="h-4 w-4 mr-2" />
                     导出数据
                   </Button>
@@ -302,11 +356,11 @@ export default function Identity() {
                     <span className="text-sm text-gray-600">
                       已选择 {selectedItems.length} 项
                     </span>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={handleBatchEnable} disabled={isProcessing}>
                       <UserCheck className="h-4 w-4 mr-2" />
                       批量启用
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={handleBatchDisable} disabled={isProcessing}>
                       <UserX className="h-4 w-4 mr-2" />
                       批量禁用
                     </Button>
