@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { 
   Search, 
   Filter, 
@@ -25,7 +27,8 @@ import {
   MoreHorizontal,
   Eye,
   UserCheck,
-  UserX
+  UserX,
+  Key
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -380,7 +383,7 @@ export default function Identity() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>取消</AlertDialogCancel>
-                          <AlertDialogAction className="bg-red-600 hover:bg-red-700">
+                          <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={handleBatchDelete}>
                             删除
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -394,6 +397,93 @@ export default function Identity() {
         </CardHeader>
 
         <CardContent>
+          {/* 高级过滤展开面板 */}
+          {showAdvancedFilter && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-4">高级过滤条件</h4>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">姓名</label>
+                  <Input
+                    placeholder="搜索姓名..."
+                    value={filterName}
+                    onChange={(e) => setFilterName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">部门</label>
+                  <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择部门" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">全部部门</SelectItem>
+                      <SelectItem value="技术部">技术部</SelectItem>
+                      <SelectItem value="财务部">财务部</SelectItem>
+                      <SelectItem value="人事部">人事部</SelectItem>
+                      <SelectItem value="运营部">运营部</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">风险等级</label>
+                  <Select value={filterRiskScore} onValueChange={setFilterRiskScore}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择风险等级" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">全部</SelectItem>
+                      <SelectItem value="high">高风险 (≥90)</SelectItem>
+                      <SelectItem value="medium">中风险 (70-89)</SelectItem>
+                      <SelectItem value="low">低风险 (<70)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">时间范围</label>
+                  <Select value={filterDateRange} onValueChange={setFilterDateRange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择时间" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">全部时间</SelectItem>
+                      <SelectItem value="today">今天</SelectItem>
+                      <SelectItem value="week">最近一周</SelectItem>
+                      <SelectItem value="month">最近一月</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setFilterName("");
+                    setFilterDepartment("");
+                    setFilterRiskScore("");
+                    setFilterDateRange("");
+                  }}
+                >
+                  清除过滤
+                </Button>
+                <Button onClick={() => setShowAdvancedFilter(false)}>
+                  应用过滤
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* 批量操作进度条 */}
+          {isProcessing && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-900">{processStatus}</span>
+                <span className="text-sm text-gray-600">{processProgress}%</span>
+              </div>
+              <Progress value={processProgress} className="h-2" />
+            </div>
+          )}
+
           {/* 主数据列表 */}
           <div className="space-y-4">
             {/* 表头 */}
@@ -469,9 +559,45 @@ export default function Identity() {
                   </div>
 
                   <div className="col-span-1 flex items-center" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openDetails(identity)}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          查看详情
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="h-4 w-4 mr-2" />
+                          编辑
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Key className="h-4 w-4 mr-2" />
+                          重置密码
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                          {identity.status === "active" ? (
+                            <>
+                              <UserX className="h-4 w-4 mr-2" />
+                              禁用
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="h-4 w-4 mr-2" />
+                              启用
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          删除
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               ))}
