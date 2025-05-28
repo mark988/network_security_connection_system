@@ -1,7 +1,27 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, customAuth } from "./replitAuth";
+
+// Custom authentication middleware that supports both session types
+const customAuth = async (req: any, res: any, next: any) => {
+  try {
+    // Check for custom session first
+    if (req.session?.user) {
+      const user = await storage.getUser(req.session.user.id);
+      if (user) {
+        req.customUser = user;
+        return next();
+      }
+    }
+    
+    // Fallback to original customAuth middleware
+    return customAuth(req, res, next);
+  } catch (error) {
+    console.error("Custom auth error:", error);
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
 import { insertUserSchema, insertPolicySchema, insertAlertSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -53,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Fallback to Replit auth only if no custom session exists
-      if (!req.session?.user && req.isAuthenticated?.() && req.user?.claims?.sub) {
+      if (!req.session?.user && req.customAuth?.() && req.user?.claims?.sub) {
         const userId = req.user.claims.sub;
         const user = await storage.getUser(userId);
         if (user) {
@@ -93,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Users routes
-  app.get('/api/users', isAuthenticated, async (req, res) => {
+  app.get('/api/users', customAuth, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -103,7 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/users', isAuthenticated, async (req, res) => {
+  app.post('/api/users', customAuth, async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
       const user = await storage.upsertUser(userData);
@@ -114,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/users/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/users/:id', customAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const userData = insertUserSchema.partial().parse(req.body);
@@ -126,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/users/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/users/:id', customAuth, async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteUser(id);
@@ -138,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Policies routes
-  app.get('/api/policies', isAuthenticated, async (req, res) => {
+  app.get('/api/policies', customAuth, async (req, res) => {
     try {
       const policies = await storage.getAllPolicies();
       res.json(policies);
@@ -148,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/policies', isAuthenticated, async (req, res) => {
+  app.post('/api/policies', customAuth, async (req, res) => {
     try {
       const policyData = insertPolicySchema.parse(req.body);
       const policy = await storage.createPolicy(policyData);
@@ -159,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/policies/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/policies/:id', customAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const policyData = insertPolicySchema.partial().parse(req.body);
@@ -171,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/policies/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/policies/:id', customAuth, async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deletePolicy(parseInt(id));
@@ -183,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Alerts routes
-  app.get('/api/alerts', isAuthenticated, async (req, res) => {
+  app.get('/api/alerts', customAuth, async (req, res) => {
     try {
       const alerts = await storage.getAllAlerts();
       res.json(alerts);
@@ -193,7 +213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/alerts', isAuthenticated, async (req, res) => {
+  app.post('/api/alerts', customAuth, async (req, res) => {
     try {
       const alertData = insertAlertSchema.parse(req.body);
       const alert = await storage.createAlert(alertData);
@@ -204,7 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/alerts/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/alerts/:id', customAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const alertData = insertAlertSchema.partial().parse(req.body);
@@ -216,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/alerts/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/alerts/:id', customAuth, async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteAlert(parseInt(id));
@@ -228,7 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Network nodes routes
-  app.get('/api/network-nodes', isAuthenticated, async (req, res) => {
+  app.get('/api/network-nodes', customAuth, async (req, res) => {
     try {
       const nodes = await storage.getAllNetworkNodes();
       res.json(nodes);
@@ -239,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // System metrics routes
-  app.get('/api/system-metrics', isAuthenticated, async (req, res) => {
+  app.get('/api/system-metrics', customAuth, async (req, res) => {
     try {
       const metrics = await storage.getLatestSystemMetrics();
       res.json(metrics);
@@ -250,7 +270,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Traffic data routes
-  app.get('/api/traffic-data', isAuthenticated, async (req, res) => {
+  app.get('/api/traffic-data', customAuth, async (req, res) => {
     try {
       const hours = req.query.hours ? parseInt(req.query.hours as string) : 24;
       const trafficData = await storage.getTrafficData(hours);
