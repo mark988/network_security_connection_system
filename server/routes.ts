@@ -1,22 +1,22 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, customAuth } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
-// Custom authentication middleware that supports both session types
+// Simplified authentication middleware that checks both session types
 const customAuth = async (req: any, res: any, next: any) => {
   try {
-    // Check for custom session first
+    // Check custom session first
     if (req.session?.user) {
-      const user = await storage.getUser(req.session.user.id);
-      if (user) {
-        req.customUser = user;
-        return next();
-      }
+      return next();
     }
     
-    // Fallback to original isAuthenticated middleware
-    return isAuthenticated(req, res, next);
+    // Check Replit auth session
+    if (req.isAuthenticated?.() && req.user?.claims?.sub) {
+      return next();
+    }
+    
+    res.status(401).json({ message: "Unauthorized" });
   } catch (error) {
     console.error("Custom auth error:", error);
     res.status(401).json({ message: "Unauthorized" });
