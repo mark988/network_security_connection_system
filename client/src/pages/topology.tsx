@@ -20,13 +20,30 @@ export default function Topology() {
 
   // Mock network topology data for visualization
   const mockNodes = [
-    { id: "core-switch", name: "Core Switch", type: "switch", x: 400, y: 50, status: "online", ipAddress: "192.168.1.1" },
-    { id: "srv-web-01", name: "srv-web-01", type: "server", x: 200, y: 150, status: "online", ipAddress: "192.168.1.10", cpuUsage: 45, memoryUsage: 68, connectionCount: 24 },
-    { id: "srv-db-01", name: "srv-db-01", type: "server", x: 600, y: 150, status: "online", ipAddress: "192.168.1.11", cpuUsage: 32, memoryUsage: 55, connectionCount: 12 },
-    { id: "pc-001", name: "PC-001", type: "workstation", x: 100, y: 250, status: "warning", ipAddress: "192.168.1.100" },
-    { id: "pc-002", name: "PC-002", type: "workstation", x: 300, y: 250, status: "online", ipAddress: "192.168.1.101" },
-    { id: "pc-003", name: "PC-003", type: "workstation", x: 500, y: 250, status: "alert", ipAddress: "192.168.1.102" },
-    { id: "pc-004", name: "PC-004", type: "workstation", x: 700, y: 250, status: "online", ipAddress: "192.168.1.103" },
+    { id: "core-switch", name: "核心交换机", type: "switch", x: 400, y: 50, status: "online", ipAddress: "192.168.1.1" },
+    { id: "srv-web-01", name: "Web服务器", type: "server", x: 200, y: 150, status: "online", ipAddress: "192.168.1.10", cpuUsage: 45, memoryUsage: 68, connectionCount: 24 },
+    { id: "srv-db-01", name: "数据库服务器", type: "server", x: 600, y: 150, status: "online", ipAddress: "192.168.1.11", cpuUsage: 32, memoryUsage: 55, connectionCount: 12 },
+    { id: "firewall-01", name: "边界防火墙", type: "firewall", x: 400, y: 350, status: "online", ipAddress: "192.168.1.254" },
+    { id: "pc-001", name: "财务部工作站", type: "workstation", x: 100, y: 250, status: "warning", ipAddress: "192.168.1.100" },
+    { id: "pc-002", name: "人事部工作站", type: "workstation", x: 300, y: 250, status: "online", ipAddress: "192.168.1.101" },
+    { id: "pc-003", name: "技术部工作站", type: "workstation", x: 500, y: 250, status: "alert", ipAddress: "192.168.1.102" },
+    { id: "pc-004", name: "销售部工作站", type: "workstation", x: 700, y: 250, status: "online", ipAddress: "192.168.1.103" },
+    { id: "printer-01", name: "网络打印机", type: "printer", x: 150, y: 350, status: "online", ipAddress: "192.168.1.200" },
+    { id: "nas-01", name: "网络存储", type: "storage", x: 650, y: 350, status: "online", ipAddress: "192.168.1.20" },
+  ];
+
+  // 定义连接关系，用于绘制动画连线
+  const connections = [
+    { from: "core-switch", to: "srv-web-01", status: "active", bandwidth: 85 },
+    { from: "core-switch", to: "srv-db-01", status: "active", bandwidth: 70 },
+    { from: "core-switch", to: "pc-001", status: "warning", bandwidth: 45 },
+    { from: "core-switch", to: "pc-002", status: "active", bandwidth: 30 },
+    { from: "core-switch", to: "pc-003", status: "alert", bandwidth: 95 },
+    { from: "core-switch", to: "pc-004", status: "active", bandwidth: 25 },
+    { from: "core-switch", to: "firewall-01", status: "active", bandwidth: 60 },
+    { from: "firewall-01", to: "printer-01", status: "active", bandwidth: 15 },
+    { from: "firewall-01", to: "nas-01", status: "active", bandwidth: 40 },
+    { from: "srv-web-01", to: "srv-db-01", status: "active", bandwidth: 78 },
   ];
 
   const getNodeColor = (status: string) => {

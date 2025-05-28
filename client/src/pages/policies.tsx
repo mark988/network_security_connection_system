@@ -150,6 +150,13 @@ export default function Policies() {
           </div>
         </CardContent>
       </Card>
+
+      {/* 策略测试弹窗 */}
+      <PolicyTestModal
+        open={testModalOpen}
+        onOpenChange={setTestModalOpen}
+        policyName={testingPolicy?.name || ""}
+      />
     </div>
   );
 }
