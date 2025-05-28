@@ -14,6 +14,9 @@ import Topology from "@/pages/topology";
 import UserProfile from "@/pages/user-profile";
 import ChangePassword from "@/pages/change-password";
 import SystemHealth from "@/pages/system-health";
+import LoginLogs from "@/pages/login-logs";
+import OperationLogs from "@/pages/operation-logs";
+import SystemLogs from "@/pages/system-logs";
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import NotFound from "@/pages/not-found";
@@ -46,6 +49,9 @@ function Router() {
             <Route path="/user-profile" component={UserProfile} />
             <Route path="/change-password" component={ChangePassword} />
             <Route path="/system/health" component={SystemHealth} />
+            <Route path="/system/logs/login" component={LoginLogs} />
+            <Route path="/system/logs/operation" component={OperationLogs} />
+            <Route path="/system/logs/system" component={SystemLogs} />
             <Route component={NotFound} />
           </Switch>
         </main>
