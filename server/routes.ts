@@ -116,8 +116,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true });
   });
 
-  // Users routes
-  app.get('/api/users', customAuth, async (req, res) => {
+  // Users routes  
+  app.get('/api/users', async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -127,7 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/users', customAuth, async (req, res) => {
+  app.post('/api/users', async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
       const user = await storage.upsertUser(userData);
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/users/:id', customAuth, async (req, res) => {
+  app.put('/api/users/:id', async (req, res) => {
     try {
       const { id } = req.params;
       const userData = insertUserSchema.partial().parse(req.body);
@@ -150,7 +150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/users/:id', customAuth, async (req, res) => {
+  app.delete('/api/users/:id', async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteUser(id);
@@ -162,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Policies routes
-  app.get('/api/policies', customAuth, async (req, res) => {
+  app.get('/api/policies', async (req, res) => {
     try {
       const policies = await storage.getAllPolicies();
       res.json(policies);
@@ -172,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/policies', customAuth, async (req, res) => {
+  app.post('/api/policies', async (req, res) => {
     try {
       const policyData = insertPolicySchema.parse(req.body);
       const policy = await storage.createPolicy(policyData);
@@ -183,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/policies/:id', customAuth, async (req, res) => {
+  app.put('/api/policies/:id', async (req, res) => {
     try {
       const { id } = req.params;
       const policyData = insertPolicySchema.partial().parse(req.body);
@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/policies/:id', customAuth, async (req, res) => {
+  app.delete('/api/policies/:id', async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deletePolicy(parseInt(id));
@@ -207,7 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Alerts routes
-  app.get('/api/alerts', customAuth, async (req, res) => {
+  app.get('/api/alerts', async (req, res) => {
     try {
       const alerts = await storage.getAllAlerts();
       res.json(alerts);
@@ -217,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/alerts', customAuth, async (req, res) => {
+  app.post('/api/alerts', async (req, res) => {
     try {
       const alertData = insertAlertSchema.parse(req.body);
       const alert = await storage.createAlert(alertData);
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/alerts/:id', customAuth, async (req, res) => {
+  app.put('/api/alerts/:id', async (req, res) => {
     try {
       const { id } = req.params;
       const alertData = insertAlertSchema.partial().parse(req.body);
@@ -240,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/alerts/:id', customAuth, async (req, res) => {
+  app.delete('/api/alerts/:id', async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteAlert(parseInt(id));
@@ -252,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Network nodes routes
-  app.get('/api/network-nodes', customAuth, async (req, res) => {
+  app.get('/api/network-nodes', async (req, res) => {
     try {
       const nodes = await storage.getAllNetworkNodes();
       res.json(nodes);
@@ -263,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // System metrics routes
-  app.get('/api/system-metrics', customAuth, async (req, res) => {
+  app.get('/api/system-metrics', async (req, res) => {
     try {
       const metrics = await storage.getLatestSystemMetrics();
       res.json(metrics);
@@ -274,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Traffic data routes
-  app.get('/api/traffic-data', customAuth, async (req, res) => {
+  app.get('/api/traffic-data', async (req, res) => {
     try {
       const hours = req.query.hours ? parseInt(req.query.hours as string) : 24;
       const trafficData = await storage.getTrafficData(hours);

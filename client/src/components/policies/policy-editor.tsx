@@ -14,7 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertPolicySchema, type Policy, type InsertPolicy } from "@shared/schema";
 import { z } from "zod";
-import { Save, Play, RotateCcw, Plus, X } from "lucide-react";
+import { Save, Play, RotateCcw, Plus, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 const policyFormSchema = insertPolicySchema.extend({
   name: z.string().min(1, "请输入策略名称"),
@@ -40,6 +41,9 @@ export default function PolicyEditor({ policy, isCreating, onSave }: PolicyEdito
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [isTestingPolicy, setIsTestingPolicy] = useState(false);
+  const [testProgress, setTestProgress] = useState(0);
+  const [testStatus, setTestStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
